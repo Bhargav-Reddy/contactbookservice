@@ -1,4 +1,12 @@
 package com.plivo.contactbook.repository;
 
-public class ContactBookRepository {
+import java.util.List;
+
+import com.plivo.contactbook.model.Contact;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ContactBookRepository extends JpaRepository<Contact, String>{
+    List<Contact> findByEmailId(String searchString);
+
+    List<Contact> findByName(String searchString);
 }
