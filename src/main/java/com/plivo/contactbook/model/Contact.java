@@ -2,18 +2,12 @@ package com.plivo.contactbook.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="contacts", catalog = "contactbook")
+@Table(name = "contacts", catalog = "contact_book")
 public class Contact {
-    @Id
-    @GeneratedValue
-    @Column(name = "id")
-    private Integer id;
-
     @Column(name = "name")
     private String name;
 
@@ -22,14 +16,6 @@ public class Contact {
     private String emailId;
 
     public Contact() {
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getName() {

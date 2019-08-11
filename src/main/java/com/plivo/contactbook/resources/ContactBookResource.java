@@ -1,6 +1,6 @@
 package com.plivo.contactbook.resources;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.plivo.contactbook.model.Contact;
@@ -30,13 +30,13 @@ public class ContactBookResource {
     private ContactBookRepository contactBookRepository;
 
     @GetMapping("/contacts")
-    public List<Contact> searchContacts(@RequestParam String searchString) {
-        List<Contact> contactList = Collections.emptyList();
-        if (!searchString.isEmpty()) {
-            if (ContactBookUtil.isValidEmail(searchString)) {
-                contactList = contactBookRepository.findByEmailId(searchString);
+    public List<Contact> searchContacts(@RequestParam String search) {
+        List<Contact> contactList = new ArrayList<>();
+        if (!search.isEmpty()) {
+            if (ContactBookUtil.isValidEmail(search)) {
+                contactBookRepository.findById(search).ifPresent(contactList::add);
             } else {
-                contactList = contactBookRepository.findByName(searchString);
+                contactList = contactBookRepository.findByName(search);
             }
         }
         return contactList;
@@ -44,7 +44,7 @@ public class ContactBookResource {
 
     @PostMapping("/contacts")
     public Contact addContact(@RequestBody Contact contact){
-        return null;
+        return contactBookRepository.save(contact);
     }
 
     @PutMapping("/contacts/{contactId}")
