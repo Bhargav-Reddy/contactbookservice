@@ -3,12 +3,14 @@ package com.plivo.contactbook.resources;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.plivo.contactbook.exception.ResourceNotFoundException;
 import com.plivo.contactbook.model.Contact;
 import com.plivo.contactbook.repository.ContactBookRepository;
 import com.plivo.contactbook.util.ContactBookUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,9 +36,11 @@ public class ContactBookResource {
         List<Contact> contactList = new ArrayList<>();
         if (!search.isEmpty()) {
             if (ContactBookUtil.isValidEmail(search)) {
-                contactBookRepository.findById(search).ifPresent(contactList::add);
+                LOGGER.info("Search contacts with emailId : "+search);
+                contactList = contactBookRepository.findByEmailId(search);
             } else {
-                contactList = contactBookRepository.findByName(search);
+                LOGGER.info("Search contacts with name : "+search);
+                contactList = contactBookRepository.findByName(search, PageRequest.of(1,10));
             }
         }
         return contactList;
@@ -48,13 +52,22 @@ public class ContactBookResource {
     }
 
     @PutMapping("/contacts/{contactId}")
-    public Contact updateContact(@PathVariable Integer contactId){
-        return null;
+    public Contact updateContact(@PathVariable Integer contactId, @RequestBody Contact contactRequest){
+        return contactBookRepository.findById(contactId)
+                .map(contact -> {
+                    contact.setEmailId(contactRequest.getEmailId());
+                    contact.setName(contactRequest.getName());
+                    return contactBookRepository.save(contact);
+                }).orElseThrow(() -> new ResourceNotFoundException("Contact not found with Id : "+contactId));
     }
 
     @DeleteMapping("/contacts/{contactId}")
-    public ResponseEntity<Contact> deleteContact(@PathVariable Integer contactId){
-        return null;
+    public ResponseEntity<?> deleteContact(@PathVariable Integer contactId){
+        return contactBookRepository.findById(contactId)
+                .map(contact -> {
+                    contactBookRepository.delete(contact);
+                    return ResponseEntity.ok().build();
+                }).orElseThrow(() -> (new ResourceNotFoundException("Contact not found with Id : "+contactId)));
     }
 
 
