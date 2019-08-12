@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +33,7 @@ public class ContactBookResource {
     private ContactBookRepository contactBookRepository;
 
     @GetMapping("/contacts")
-    public List<Contact> searchContacts(@RequestParam String search) {
+    public List<Contact> searchContacts(@RequestParam String search, Pageable pageable) {
         List<Contact> contactList = new ArrayList<>();
         if (!search.isEmpty()) {
             if (ContactBookUtil.isValidEmail(search)) {
@@ -40,7 +41,7 @@ public class ContactBookResource {
                 contactList = contactBookRepository.findByEmailId(search);
             } else {
                 LOGGER.info("Search contacts with name : "+search);
-                contactList = contactBookRepository.findByName(search, PageRequest.of(1,10));
+                contactList = contactBookRepository.findByName(search, pageable);
             }
         }
         return contactList;
